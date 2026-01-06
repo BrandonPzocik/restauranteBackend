@@ -1,0 +1,115 @@
+:root {
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --text: #050505;
+  --primary: #28a745;
+  --danger: #dc3545;
+  --warning: #ffc107;
+  --light: #6c757d;
+  --border: #ced4da;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; font-family: system-ui; margin: 0; padding: 0; }
+body { background: var(--bg); padding: 20px; }
+.container { max-width: 800px; margin: 0 auto; }
+
+section { display: none; }
+section.active { display: block; }
+
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.header h2 { margin: 0; }
+
+.card { 
+  background: var(--card); 
+  border-radius: var(--radius); 
+  box-shadow: var(--shadow); 
+  padding: 24px; 
+  margin-bottom: 24px; 
+}
+
+.form-group, h3, h4 { margin: 16px 0; }
+label { display: block; margin-bottom: 6px; font-weight: 600; }
+
+input, select, textarea, button {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+button:disabled { background: #adb5bd; cursor: not-allowed; }
+.btn-secondary { background: var(--light); width: auto; padding: 6px 12px; font-size: 14px; }
+
+.error { color: var(--danger); margin-top: 8px; }
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quantity-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mesa-item {
+  display: inline-block;
+  background: #d4edda;
+  color: #155724;
+  padding: 12px;
+  margin: 4px;
+  border-radius: 8px;
+  text-align: center;
+  min-width: 80px;
+}
+
+.mesa-ocupada { background: #f8d7da; color: #721c24; }
+.mesa-pagando { background: #fff3cd; color: #856404; }
+
+.pedido-cocina {
+  background: #e9f7fe;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border-left: 4px solid #17a2b8;
+}
+.stat-card {
+  background: #e9f7fe;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+.stat-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #17a2b8;
+}

@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { Menu } from '../models/Menu';
 
 export const getMenu = async (_: Request, res: Response) => {

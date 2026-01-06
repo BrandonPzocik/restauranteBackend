@@ -1,8 +1,8 @@
 import pool from '../config/db';
-import * as bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 
 export class Usuario {
-  static async create(nombre: string, email: string, password: string, rol: 'mozo' | 'admin') {
+  static async create(nombre: string, email: string, password: string, rol: string) {
     const hashed = await bcrypt.hash(password, 10);
     const [result] = await pool.execute(
       'INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, ?)',

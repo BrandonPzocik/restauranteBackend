@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Restaurante</title>
+  <style>
+    :root {
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --text: #050505;
+      --primary: #17a2b8;
+      --success: #28a745;
+      --warning: #ffc107;
+      --light: #6c757d;
+      --border: #ced4da;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; font-family: system-ui; }
+    body { background: var(--bg); margin: 0; padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .header h1 { margin: 0; font-size: 26px; }
+    .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; margin-bottom: 24px; }
+    .stats { display: flex; gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: #e9f7fe; padding: 16px; border-radius: 10px; text-align: center; flex: 1; }
+    .stat-value { font-size: 24px; font-weight: bold; color: var(--primary); }
+    .pedido-item { padding: 12px 0; border-bottom: 1px solid #eee; }
+    .btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .btn-success { background: var(--success); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 Panel del Dueño</h1>
+      <button class="btn" style="background: #6c757d;">Cerrar sesión</button>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats">
+      <div class="stat-card">
+        <div>Ventas hoy</div>
+        <div class="stat-value">$85.000</div>
+      </div>
+      <div class="stat-card">
+        <div>Pedidos</div>
+        <div class="stat-value">12</div>
+      </div>
+      <div class="stat-card">
+        <div>Plato top</div>
+        <div class="stat-value">Milanesa</div>
+      </div>
+    </div>
+
+    <!-- Pedidos activos -->
+    <div class="card">
+      <h3>📋 Pedidos activos</h3>
+      <div class="pedido-item">
+        <div style="display: flex; justify-content: space-between;">
+          <strong>Mesa 3</strong> • Mozo: Carlos
+          <span style="color: #e07b00;">Preparando</span>
+        </div>
+        <button class="btn" style="margin-top: 8px;">👁️ Detalle</button>
+      </div>
+      <div class="pedido-item">
+        <div style="display: flex; justify-content: space-between;">
+          <strong>Mesa 7</strong> • Mozo: Ana
+          <span style="color: var(--success);">Listo</span>
+        </div>
+        <button class="btn" style="margin-top: 8px;">👁️ Detalle</button>
+      </div>
+    </div>
+
+    <!-- Gestión -->
+    <div class="card">
+      <h3>⚙️ Gestión rápida</h3>
+      <button class="btn">➕ Agregar plato</button>
+      <button class="btn" style="background: #ffc107; margin-left: 10px;">👥 Gestionar usuarios</button>
+      <button class="btn" style="background: #6c757d; margin-left: 10px;">📈 Ver reportes</button>
+    </div>
+  </div>
+</body>
+</html>

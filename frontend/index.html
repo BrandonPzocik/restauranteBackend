@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Restaurante - Sistema Completo</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container" id="app">
+    <!-- Login -->
+    <section id="login-section" class="active">
+      <div class="card">
+        <h1>Restaurante</h1>
+        <p>Inicia sesión para continuar</p>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="ej: admin@resto.com" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" placeholder="••••••••" required />
+          </div>
+          <button type="submit">Iniciar sesión</button>
+          <p id="login-error" class="error"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- Mozo -->
+    <section id="mozo-section">
+      <div class="header">
+        <h2>Pedidos - <span id="mozo-nombre">Mozo</span></h2>
+        <button id="logout-mozo" class="btn-secondary">Cerrar sesión</button>
+      </div>
+
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3>✅ Pedidos listos</h3>
+          <button id="refresh-listos" class="btn-secondary">🔄</button>
+        </div>
+        <div id="pedidos-listos"></div>
+      </div>
+
+      <div class="card">
+        <h3>🛒 Nuevo pedido</h3>
+        <div class="form-group">
+          <label>Mesa</label>
+          <select id="mesa-select"></select>
+        </div>
+        <div id="menu-items"></div>
+        <div id="resumen-pedido">No hay platos</div>
+        <button id="enviar-pedido" disabled>Enviar a cocina</button>
+      </div>
+    </section>
+
+    <!-- Cocina -->
+    <section id="cocina-section">
+      <div class="header">
+        <h2>🧾 Cocina</h2>
+        <button id="logout-cocina" class="btn-secondary">Cerrar sesión</button>
+      </div>
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3>Pedidos pendientes</h3>
+          <button id="refresh-cocina" class="btn-secondary">🔄 Actualizar</button>
+        </div>
+        <div id="pedidos-cocina"></div>
+      </div>
+    </section>
+
+    <!-- Admin Dashboard -->
+<section id="admin-section">
+  <div class="header">
+    <h2>📊 Panel del Dueño</h2>
+    <button id="logout-admin" class="btn-secondary">Cerrar sesión</button>
+  </div>
+
+  <!-- Estado de mesas -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3>🪑 Estado de mesas</h3>
+      <button id="refresh-mesas" class="btn-secondary">🔄</button>
+    </div>
+    <div id="mapa-mesas"></div>
+  </div>
+
+  <!-- Estadísticas -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3>📈 Estadísticas</h3>
+      <button id="refresh-reportes" class="btn-secondary">🔄</button>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px;">
+      <div class="stat-card">
+        <div>Hoy</div>
+        <div id="ganancias-dia" class="stat-value">$0</div>
+      </div>
+      <div class="stat-card">
+        <div>Semana</div>
+        <div id="ganancias-semana" class="stat-value">$0</div>
+      </div>
+      <div class="stat-card">
+        <div>Mes</div>
+        <div id="ganancias-mes" class="stat-value">$0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rendimiento por mozo -->
+  <div class="card">
+    <h3>👥 Rendimiento por mozo</h3>
+    <div id="rendimiento-mozos">Cargando...</div>
+  </div>
+
+  <!-- Platos más vendidos -->
+  <div class="card">
+    <h3>🍽️ Platos más vendidos</h3>
+    <div id="platos-vendidos">Cargando...</div>
+  </div>
+
+  <!-- Agregar plato -->
+  <div class="card">
+    <h3>➕ Agregar plato</h3>
+    <form id="menu-form">
+      <input type="text" id="plato-nombre" placeholder="Nombre" required />
+      <textarea id="plato-desc" placeholder="Descripción"></textarea>
+      <input type="number" id="plato-precio" placeholder="Precio" required />
+      <button type="submit">Agregar</button>
+    </form>
+  </div>
+</section>
+
+
+<!-- Modal de Ticket -->
+<div id="ticket-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000;">
+  <div style="background:white; margin:30px auto; padding:20px; max-width:500px; max-height:80vh; overflow:auto; border-radius:10px; font-family:monospace; font-size:14px;">
+    <h3 style="text-align:center; margin-top:0;">TICKET RESTAURANTE</h3>
+    <div id="ticket-content"></div>
+    <div style="text-align:center; margin-top:20px;">
+      <button id="print-ticket" style="background:#28a745; color:white; border:none; padding:8px 16px; border-radius:6px; margin-right:10px;">🖨️ Imprimir</button>
+      <button id="download-ticket" style="background:#007bff; color:white; border:none; padding:8px 16px; border-radius:6px; margin-right:10px;">⬇️ PDF</button>
+      <button id="confirm-cerrar" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; margin-right:10px;">✅ Cerrar cuenta</button>
+      <button id="close-ticket" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+  <!-- Modal de observaciones -->
+  <div id="note-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
+    <div style="background:white; margin:100px auto; padding:20px; max-width:400px; border-radius:10px;">
+      <h4>Notas para este plato</h4>
+      <textarea id="note-input" placeholder="Ej: Sin huevo..." style="width:100%; height:80px; margin:10px 0;"></textarea>
+      <button id="save-note" style="background:#28a745; color:white; border:none; padding:8px 16px; border-radius:6px;">Guardar</button>
+      <button id="cancel-note" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px; margin-left:10px;">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Librerías -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="lib/jspdf.umd.min.js"></script>
+  
+  <!-- Módulo principal -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

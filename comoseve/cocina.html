@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cocina - Restaurante</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --text: #050505;
+      --primary: #ffc107;
+      --danger: #dc3545;
+      --border: #dee2e6;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; font-family: system-ui; }
+    body { background: var(--bg); margin: 0; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 24px; }
+    .header h1 { margin: 0; font-size: 28px; color: #e07b00; }
+    .pedido { 
+      background: var(--card); 
+      border-radius: var(--radius); 
+      box-shadow: var(--shadow); 
+      padding: 16px; 
+      margin-bottom: 16px;
+      border-left: 4px solid var(--primary);
+    }
+    .mesa { font-weight: bold; font-size: 18px; margin-bottom: 8px; }
+    .plato { padding: 6px 0; border-bottom: 1px dashed var(--border); }
+    .btn-listo { 
+      background: #28a745; 
+      color: white; 
+      border: none; 
+      padding: 8px 16px; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🧾 Pedidos en cocina</h1>
+      <p>Marcar como listo cuando esté preparado</p>
+    </div>
+
+    <div class="pedido">
+      <div class="mesa">Mesa 3</div>
+      <div class="plato">2 × Milanesa Napolitana</div>
+      <div class="plato">1 × Ensalada César</div>
+      <button class="btn-listo">✅ Marcar como listo</button>
+    </div>
+
+    <div class="pedido">
+      <div class="mesa">Mesa 7</div>
+      <div class="plato">1 × Hamburguesa Clásica</div>
+      <div class="plato">1 × Pizza Margarita</div>
+      <div class="plato">2 × Gaseosa</div>
+      <button class="btn-listo">✅ Marcar como listo</button>
+    </div>
+
+    <div class="pedido">
+      <div class="mesa">Mesa 5</div>
+      <div class="plato">3 × Tarta de Verduras</div>
+      <button class="btn-listo">✅ Marcar como listo</button>
+    </div>
+  </div>
+</body>
+</html>

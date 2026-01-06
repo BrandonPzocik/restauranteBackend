@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mozo - Restaurante</title>
+  <style>
+    :root {
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --text: #050505;
+      --primary: #28a745;
+      --light: #6c757d;
+      --border: #ced4da;
+      --shadow: 0 2px 8px rgba(0,0,0,0.1);
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; font-family: system-ui; }
+    body { background: var(--bg); margin: 0; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .header h1 { margin: 0; font-size: 24px; }
+    .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 20px; }
+    .btn { background: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; }
+    .status-listo { background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 20px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>_pedidos - Mozo Carlos</h1>
+      <button class="btn" style="background: #6c757d;">Cerrar sesión</button>
+    </div>
+
+    <!-- Pedidos listos para servir -->
+    <div class="card">
+      <h3>✅ Pedidos listos para servir</h3>
+      <div style="margin-top: 12px;">
+        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+          <span>Mesa 3</span>
+          <span class="status-listo">Listo</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+          <span>Mesa 7</span>
+          <span class="status-listo">Listo</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nuevo pedido -->
+    <div class="card">
+      <h3>🛒 Nuevo pedido</h3>
+      <p><strong>Mesa:</strong> Mesa 5 (4 personas)</p>
+      <p><strong>Menú:</strong></p>
+      <ul style="list-style: none; padding: 0;">
+        <li style="padding: 8px 0; border-bottom: 1px solid #eee;">2 × Milanesa Napolitana - $2800 c/u</li>
+        <li style="padding: 8px 0; border-bottom: 1px solid #eee;">1 × Ensalada César - $2100 c/u</li>
+        <li style="padding: 8px 0;">2 × Agua Mineral - $400 c/u</li>
+      </ul>
+      <p><strong>Total:</strong> $8500</p>
+      <button class="btn">Enviar pedido</button>
+      <button class="btn" style="background: #007bff; margin-top: 10px;">Cerrar cuenta</button>
+    </div>
+  </div>
+</body>
+</html>

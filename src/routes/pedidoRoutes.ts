@@ -1,11 +1,28 @@
+// src/routes/pedidoRoutes.ts
 import { Router } from 'express';
-import { createPedido, getPedidos, updatePedidoStatus } from '../controllers/pedidoController';
+import { 
+  createPedido, 
+  getPedidos, 
+  getPedidoById,
+  updatePedidoStatus,
+  getPedidosListos 
+} from '../controllers/pedidoController';
 import { authenticate } from '../middleware/authMiddleware';
 
 const router = Router();
 
-router.post('/', authenticate, createPedido); // cualquier mozo o admin puede crear
+// Rutas fijas PRIMERO
+router.post('/', authenticate, createPedido);
 router.get('/', authenticate, getPedidos);
-router.patch('/:id', authenticate, updatePedidoStatus); // idealmente solo admin, pero ajusta si quieres
+router.get('/listos', authenticate, getPedidosListos); // ← ¡DEBE IR ANTES DE :id!
+
+// Rutas con parámetros al FINAL
+router.get('/:id', authenticate, getPedidoById);
+router.patch('/:id', authenticate, updatePedidoStatus);
+// src/routes/pedidoRoutes.ts
+import { getPlatosPorMesa } from '../controllers/pedidoController';
+
+// ... otras rutas
+router.get('/mesa/:mesaId', authenticate, getPlatosPorMesa);
 
 export default router;

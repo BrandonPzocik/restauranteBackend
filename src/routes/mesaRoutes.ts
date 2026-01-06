@@ -1,13 +1,10 @@
 import { Router } from 'express';
-import { getMesas, addMesa } from '../controllers/mesaController';
-import { authenticate, authorizeRoles } from '../middleware/authMiddleware';
+import { getMesas, getEstadoMesas } from '../controllers/mesaController';
+import { authenticate } from '../middleware/authMiddleware';
 
 const router = Router();
 
-// GET /api/mesas → listar todas las mesas (cualquier usuario autenticado)
 router.get('/', authenticate, getMesas);
-
-// POST /api/mesas → crear una nueva mesa (solo admin)
-router.post('/', authenticate, authorizeRoles('admin'), addMesa);
+router.get('/estado', authenticate, getEstadoMesas);
 
 export default router;

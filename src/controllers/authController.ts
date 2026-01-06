@@ -1,11 +1,11 @@
-import type { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { Usuario } from '../models/Usuario';
 import { generateToken } from '../utils/auth';
-import * as bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 
 export const register = async (req: Request, res: Response) => {
   const { nombre, email, password, rol } = req.body;
-  if (!['mozo', 'admin'].includes(rol)) {
+  if (!['mozo', 'cocina', 'admin'].includes(rol)) {
     return res.status(400).json({ error: 'Rol inválido' });
   }
   try {
@@ -29,4 +29,14 @@ export const login = async (req: Request, res: Response) => {
 
   const token = generateToken(user.id, user.rol);
   res.json({ token, user: { id: user.id, nombre: user.nombre, rol: user.rol } });
+};
+
+// backend/src/controllers/authController.ts
+export const getUser = (req: Request, res: Response) => {
+  const user = (req as any).user;
+  res.json({
+    id: user.id,
+    nombre: user.nombre,
+    rol: user.rol
+  });
 };
