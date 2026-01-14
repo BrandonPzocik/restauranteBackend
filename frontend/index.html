@@ -35,23 +35,39 @@
         <button id="logout-mozo" class="btn-secondary">Cerrar sesión</button>
       </div>
 
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <h3>✅ Pedidos listos</h3>
-          <button id="refresh-listos" class="btn-secondary">🔄</button>
-        </div>
-        <div id="pedidos-listos"></div>
-      </div>
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+        <!-- Columna principal -->
+        <div>
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h3>✅ Pedidos listos</h3>
+              <button id="refresh-listos" class="btn-secondary">🔄</button>
+            </div>
+            <div id="pedidos-listos"></div>
+          </div>
 
-      <div class="card">
-        <h3>🛒 Nuevo pedido</h3>
-        <div class="form-group">
-          <label>Mesa</label>
-          <select id="mesa-select"></select>
+          <div class="card">
+            <h3>🛒 Nuevo pedido</h3>
+            <div class="form-group">
+              <label>Mesa</label>
+              <select id="mesa-select"></select>
+            </div>
+            <div id="menu-items"></div>
+            <div id="resumen-pedido">No hay platos</div>
+            <button id="enviar-pedido" disabled>Enviar a cocina</button>
+          </div>
         </div>
-        <div id="menu-items"></div>
-        <div id="resumen-pedido">No hay platos</div>
-        <button id="enviar-pedido" disabled>Enviar a cocina</button>
+
+        <!-- Columna lateral - Historial -->
+        <div>
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h3>📋 Mi Historial</h3>
+              <button id="refresh-historial" class="btn-secondary">🔄</button>
+            </div>
+            <div id="historial-mozo" style="max-height: 600px; overflow-y: auto;"></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -70,20 +86,26 @@
       </div>
     </section>
 
+    <!-- Cajero -->
+    <section id="cajero-section">
+      <div class="header">
+        <h2>💰 Caja</h2>
+        <button id="logout-cajero" class="btn-secondary">Cerrar sesión</button>
+      </div>
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3>🪑 Mesas con pedidos activos</h3>
+          <button id="refresh-cajero" class="btn-secondary">🔄</button>
+        </div>
+        <div id="mesas-activas-cajero"></div>
+      </div>
+    </section>
+
     <!-- Admin Dashboard -->
 <section id="admin-section">
   <div class="header">
     <h2>📊 Panel del Dueño</h2>
     <button id="logout-admin" class="btn-secondary">Cerrar sesión</button>
-  </div>
-
-  <!-- Estado de mesas -->
-  <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h3>🪑 Estado de mesas</h3>
-      <button id="refresh-mesas" class="btn-secondary">🔄</button>
-    </div>
-    <div id="mapa-mesas"></div>
   </div>
 
   <!-- Estadísticas -->

@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 
 export const register = async (req: Request, res: Response) => {
   const { nombre, email, password, rol } = req.body;
-  if (!['mozo', 'cocina', 'admin'].includes(rol)) {
+  if (!['mozo', 'cocina', 'admin', 'cajero'].includes(rol)) {
     return res.status(400).json({ error: 'Rol inválido' });
   }
   try {
@@ -32,11 +32,20 @@ export const login = async (req: Request, res: Response) => {
 };
 
 // backend/src/controllers/authController.ts
-export const getUser = (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response) => {
   const user = (req as any).user;
-  res.json({
-    id: user.id,
-    nombre: user.nombre,
-    rol: user.rol
-  });
+  // El token tiene 'role', pero necesitamos obtener el nombre del usuario de la BD
+  try {
+    const dbUser = await Usuario.findById(user.id);
+    if (!dbUser) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    res.json({
+      id: dbUser.id,
+      nombre: dbUser.nombre,
+      rol: dbUser.rol
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 };

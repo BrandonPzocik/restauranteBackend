@@ -4,6 +4,7 @@ import { authenticate, authorizeRoles } from '../middleware/authMiddleware';
 
 const router = Router();
 
-router.post('/cerrar', authenticate, authorizeRoles('mozo', 'admin'), cerrarCuenta);
+router.post('/cerrar', authenticate, authorizeRoles('cajero', 'admin'), cerrarCuenta);
+
 
 export default router;

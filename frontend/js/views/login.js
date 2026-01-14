@@ -48,6 +48,9 @@ export function initLogin() {
       } else if (data.user.rol === 'admin') {
         window.showSection('admin');
         window.initAdmin();
+      } else if (data.user.rol === 'cajero') {
+        window.showSection('cajero');
+        window.initCajero();
       }
       
       // ✅ Inicializar socket después del login

@@ -9,6 +9,7 @@ import mesaRoutes from './routes/mesaRoutes';
 import pedidoRoutes from './routes/pedidoRoutes';
 import ventaRoutes from './routes/ventaRoute'; // ← Corregido: "ventaRoutes", no "ventaRoute"
 import reportesRoutes from './routes/reportesRoutes';
+import cajeroRoutes from './routes/cajeroRoutes';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -36,6 +37,7 @@ app.use('/api/mesas', mesaRoutes);
 app.use('/api/pedidos', pedidoRoutes);
 app.use('/api/ventas', ventaRoutes);
 app.use('/api/reportes', reportesRoutes);
+app.use('/api/cajero', cajeroRoutes);
 
 // Socket.IO
 io.on('connection', (socket: any) => {

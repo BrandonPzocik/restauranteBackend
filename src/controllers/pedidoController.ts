@@ -93,7 +93,7 @@ export const getPedidosListos = async (req: Request, res: Response) => {
         m.numero AS mesa_numero,
         p.creado_en,
         GROUP_CONCAT(
-          CONCAT(pd.cantidad, 'x ', me.nombre) 
+          CONCAT(pd.cantidad, 'x ', me.nombre)
           SEPARATOR '; '
         ) AS platos
        FROM pedidos p
@@ -133,5 +133,37 @@ export const getPlatosPorMesa = async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error('Error al cargar platos por mesa:', err);
     res.status(500).json({ error: 'Error al cargar platos' });
+  }
+};
+
+// Obtener historial de pedidos del mozo (todos los estados incluyendo cobrados)
+export const getHistorialMozo = async (req: Request, res: Response) => {
+  const userId = (req as any).user.id;
+  try {
+    const [rows] = await pool.execute(
+      `SELECT 
+        p.id,
+        p.mesa_id,
+        m.numero as mesa_numero,
+        p.estado,
+        p.creado_en,
+        GROUP_CONCAT(
+          CONCAT(pd.cantidad, 'x ', me.nombre) 
+          SEPARATOR '; '
+        ) AS platos,
+        SUM(pd.cantidad * me.precio) as total
+       FROM pedidos p
+       JOIN mesas m ON p.mesa_id = m.id
+       JOIN pedido_detalles pd ON p.id = pd.pedido_id
+       JOIN menu me ON pd.plato_id = me.id
+       WHERE p.usuario_id = ?
+       GROUP BY p.id, p.mesa_id, m.numero, p.estado, p.creado_en
+       ORDER BY p.creado_en DESC`,
+      [userId]
+    );
+    res.json(rows);
+  } catch (err: any) {
+    console.error('Error en getHistorialMozo:', err);
+    res.status(500).json({ error: 'Error al cargar historial' });
   }
 };

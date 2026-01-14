@@ -91,9 +91,26 @@ export const PedidoAPI = {
   }),
   listar: () => apiCall('/pedidos'),
   listarListos: () => apiCall('/pedidos/listos'),
+  getHistorial: () => apiCall('/pedidos/historial'),
   marcarListo: (id) => apiCall(`/pedidos/${id}`, {
     method: 'PATCH',
     body: JSON.stringify({ estado: 'listo' })
   }),
-  getDetalle: (id) => apiCall(`/pedidos/${id}`)
+  getDetalle: (id) => apiCall(`/pedidos/${id}`),
+  getPlatosPorMesa: (mesaId) => apiCall(`/pedidos/mesa/${mesaId}`)
+};
+
+
+// APIs para cajero
+export const CajeroAPI = {
+  getMesasActivas: () => apiCall('/ventas/mesas-activas'),
+  getDetalleMesa: (mesaId) => apiCall(`/ventas/detalle-mesa/${mesaId}`)
+};
+
+export const VentaAPI = {
+  cerrarCuenta: (mesaId, platos, total, impuestos, formaPago) => 
+    apiCall('/ventas/cerrar-cuenta', {
+      method: 'POST',
+      body: JSON.stringify({ mesaId, platos, total, impuestos, formaPago })
+    })
 };

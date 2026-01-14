@@ -8,11 +8,13 @@ let currentMesaNumero = null;
 export function initMozo(userName) {
   // ✅ Hacer loadPedidosListos accesible globalmente ANTES de configurar el socket
   window.loadPedidosListos = loadPedidosListos;
+  window.loadHistorialMozo = loadHistorialMozo;
   
   document.getElementById('mozo-nombre').textContent = userName;
   loadMesas();
   loadMenu();
   loadPedidosListos();
+  loadHistorialMozo();
   setupMozoEvents();
   
   // ✅ Asegurar que el socket esté conectado y configurado
@@ -35,19 +37,22 @@ async function loadMesas() {
     const select = document.getElementById('mesa-select');
     select.innerHTML = '<option value="">-- Selecciona una mesa --</option>';
     
+    // Mostrar todas las mesas, no solo las libres
+    // Esto permite agregar pedidos a mesas que ya tienen pedidos activos
     mesas.forEach(m => {
-      if (m.estado === 'libre') {
-        const opt = document.createElement('option');
-        opt.value = m.id;
-        opt.textContent = `Mesa ${m.numero} (${m.capacidad} pers)`;
-        opt.dataset.numero = m.numero;
-        select.appendChild(opt);
-      }
+      const opt = document.createElement('option');
+      opt.value = m.id;
+      const estadoLabel = m.estado === 'libre' ? '' : ` (${m.estado})`;
+      opt.textContent = `Mesa ${m.numero} (${m.capacidad} pers)${estadoLabel}`;
+      opt.dataset.numero = m.numero;
+      select.appendChild(opt);
     });
     
     if (select.children.length === 1) {
-      select.innerHTML = '<option value="">No hay mesas libres</option>';
+      select.innerHTML = '<option value="">No hay mesas disponibles</option>';
       select.disabled = true;
+    } else {
+      select.disabled = false;
     }
   } catch (err) {
     console.error('Error al cargar mesas:', err);
@@ -177,7 +182,15 @@ function setupMozoEvents() {
     }
   });
 
-  document.getElementById('refresh-listos')?.addEventListener('click', loadPedidosListos);
+  document.getElementById('refresh-listos')?.addEventListener('click', () => {
+    loadPedidosListos();
+    loadHistorialMozo();
+  });
+  
+  const refreshHistorialBtn = document.getElementById('refresh-historial');
+  if (refreshHistorialBtn) {
+    refreshHistorialBtn.addEventListener('click', loadHistorialMozo);
+  }
 }
 
 export async function loadPedidosListos() {
@@ -196,93 +209,81 @@ export async function loadPedidosListos() {
         <div class="pedido-item" style="padding: 12px; background: #d4edda; border-radius: 8px; margin-top: 8px;">
           <strong>Mesa ${p.mesa_numero}</strong><br>
           <small>${p.platos}</small>
-          <button onclick="cerrarCuenta(${p.mesa_id}, ${p.mesa_numero})" style="margin-top: 8px; background: #dc3545; border: none; color: white; padding: 6px 12px; border-radius: 4px;">
-            Cerrar cuenta
-          </button>
         </div>
       `).join('')}
     `;
+    
+    // Recargar historial después de cargar pedidos listos
+    loadHistorialMozo();
   } catch (err) {
     document.getElementById('pedidos-listos').innerHTML = '<p>❌ Error al cargar pedidos listos</p>';
   }
 }
 
-// ✅ CORREGIDO: Carga platos con platoId
-async function getPlatosPorMesa(mesaId) {
-  // Obtener token de sessionStorage específico de pestaña o de localStorage
-  const tabId = sessionStorage.getItem('tabId');
-  const token = tabId ? sessionStorage.getItem(`authToken_${tabId}`) : null || localStorage.getItem('authToken');
-  const response = await fetch(`http://localhost:3000/api/pedidos/mesa/${mesaId}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
-  });
-  
-  if (!response.ok) {
-    throw new Error('Error al cargar platos');
-  }
-  
-  const platosRaw = await response.json();
-  
-  // ✅ Mapear 'id' del plato a 'platoId' para el backend
-  return platosRaw.map(p => ({
-    platoId: p.id,          // ← ¡Clave para evitar undefined!
-    nombre: p.nombre,
-    precio: p.precio,
-    cantidad: p.cantidad,
-    observaciones: p.observaciones || null
-  }));
-}
-
-window.cerrarCuenta = async function(mesaId, mesaNumero) {
-  if (!confirm(`¿Cerrar cuenta de la Mesa ${mesaNumero}?`)) return;
-  
+// Cargar historial de pedidos del mozo
+export async function loadHistorialMozo() {
   try {
-    // Cargar platos reales (con platoId)
-    const platos = await getPlatosPorMesa(mesaId);
+    const historial = await PedidoAPI.getHistorial();
+    const container = document.getElementById('historial-mozo');
     
-    const subtotal = platos.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
-    const impuestos = subtotal * 0.21;
-    const total = subtotal + impuestos;
+    if (!container) return;
     
-    let ticketHTML = `
-      <div style="text-align:right;">${new Date().toLocaleString()}</div>
-      <div style="text-align:center; font-weight:bold; margin:10px 0;">Mesa ${mesaNumero}</div>
-      <div style="border-top:1px dashed #000; margin:10px 0;"></div>
-    `;
+    if (historial.length === 0) {
+      container.innerHTML = '<p style="padding: 12px; color: #666;">No hay pedidos en tu historial</p>';
+      return;
+    }
     
-    platos.forEach(p => {
-      const linea = `${p.cantidad}x ${p.nombre}`;
-      const totalLinea = `$${(p.precio * p.cantidad).toFixed(2)}`;
-      ticketHTML += `<div style="display:flex; justify-content:space-between;"><span>${linea}</span><span>${totalLinea}</span></div>`;
+    // Agrupar por mesa
+    const porMesa = {};
+    historial.forEach(p => {
+      if (!porMesa[p.mesa_numero]) {
+        porMesa[p.mesa_numero] = [];
+      }
+      porMesa[p.mesa_numero].push(p);
     });
     
-    ticketHTML += `
-      <div style="border-top:1px dashed #000; margin:10px 0;"></div>
-      <div style="display:flex; justify-content:space-between;"><span>Subtotal:</span><span>$${subtotal.toFixed(2)}</span></div>
-      <div style="display:flex; justify-content:space-between;"><span>IVA (21%):</span><span>$${impuestos.toFixed(2)}</span></div>
-      <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:10px;"><span>TOTAL:</span><span>$${total.toFixed(2)}</span></div>
-    `;
+    let html = '<h4 style="margin-bottom: 12px;">📋 Historial de Pedidos</h4>';
     
-    document.getElementById('ticket-content').innerHTML = ticketHTML;
-    document.getElementById('ticket-modal').style.display = 'block';
+    Object.keys(porMesa).sort().forEach(mesaNum => {
+      const pedidosMesa = porMesa[mesaNum];
+      const estadoColor = {
+        'pendiente': '#ffc107',
+        'preparando': '#17a2b8',
+        'listo': '#28a745',
+        'servido': '#6c757d',
+        'cobrado': '#28a745'
+      };
+      
+      html += `
+        <div style="margin-bottom: 16px; border: 1px solid #ddd; border-radius: 8px; padding: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong style="font-size: 16px;">Mesa ${mesaNum}</strong>
+            <span style="background: ${estadoColor[pedidosMesa[0].estado] || '#6c757d'}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+              ${pedidosMesa[0].estado}
+            </span>
+          </div>
+          ${pedidosMesa.map(p => `
+            <div style="padding: 8px; background: #f8f9fa; border-radius: 4px; margin-bottom: 4px;">
+              <div style="font-size: 12px; color: #666;">${new Date(p.creado_en).toLocaleString()}</div>
+              <div style="margin-top: 4px;">${p.platos}</div>
+              <div style="margin-top: 4px; font-weight: bold; color: #28a745;">$${Number(p.total || 0).toFixed(2)}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    });
     
-    window.currentTicketData = { 
-      mesaId, 
-      mesaNumero, 
-      platos, 
-      subtotal, 
-      impuestos, 
-      total 
-    };
-    
+    container.innerHTML = html;
   } catch (err) {
-    console.error('Error al cerrar cuenta:', err);
-    alert(`❌ ${err.message || 'Error al cargar los platos'}`);
+    console.error('Error al cargar historial:', err);
+    const container = document.getElementById('historial-mozo');
+    if (container) {
+      container.innerHTML = '<p style="padding: 12px; color: #dc3545;">❌ Error al cargar historial</p>';
+    }
   }
-};
+}
 
 // Hacer accesible globalmente
 window.loadMesas = loadMesas;
 window.loadPedidosListos = loadPedidosListos;
+window.loadHistorialMozo = loadHistorialMozo;

@@ -3,11 +3,13 @@ import { initLogin } from './views/login.js';
 import { initMozo } from './views/mozo.js';
 import { initCocina } from './views/cocina.js';
 import { initAdmin } from './views/admin.js';
+import { initCajero } from './views/cajero.js';
 import { apiCall } from './api.js';
 
 window.initMozo = initMozo;
 window.initCocina = initCocina;
 window.initAdmin = initAdmin;
+window.initCajero = initCajero;
 window.showSection = showSection;
 
 function showSection(name) {
@@ -159,6 +161,9 @@ async function checkAuthAndRedirect() {
       } else if (user.rol === 'admin') {
         showSection('admin');
         initAdmin();
+      } else if (user.rol === 'cajero') {
+        showSection('cajero');
+        initCajero();
       }
       
       // ✅ Iniciar Socket.IO después de verificar sesión (si no se inicializó ya)
@@ -227,7 +232,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await checkAuthAndRedirect();
   
   // ✅ Configurar botones de logout
-  ['mozo', 'cocina', 'admin'].forEach(role => {
+  ['mozo', 'cocina', 'admin', 'cajero'].forEach(role => {
     const btn = document.getElementById(`logout-${role}`);
     if (btn) {
       btn.addEventListener('click', logout);
@@ -321,9 +326,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       alert('✅ Cuenta cerrada exitosamente');
       document.getElementById('ticket-modal').style.display = 'none';
       
-      // Actualizar UI
-      if (window.loadMesas) window.loadMesas();
-      if (window.loadPedidosListos) window.loadPedidosListos();
+      // Actualizar UI según el rol
+      const tabId = sessionStorage.getItem('tabId');
+      const userRol = tabId ? sessionStorage.getItem(`userRol_${tabId}`) : null || localStorage.getItem('userRol');
+      
+      if (userRol === 'cajero') {
+        if (window.loadMesasActivas) window.loadMesasActivas();
+      } else if (userRol === 'mozo') {
+        if (window.loadMesas) window.loadMesas();
+        if (window.loadPedidosListos) window.loadPedidosListos();
+        if (window.loadHistorialMozo) window.loadHistorialMozo();
+      }
       
     } catch (err) {
       console.error('Error al cerrar cuenta:', err);
