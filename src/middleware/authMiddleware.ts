@@ -1,3 +1,4 @@
+// backend/src/middleware/authMiddleware.ts
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -9,7 +10,8 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
   if (!token) return res.status(401).json({ error: 'Token requerido' });
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: number; role: string };
+    // ¡USAR "rol", NO "role"!
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: number; rol: string };
     (req as any).user = decoded;
     next();
   } catch (err) {
@@ -17,20 +19,11 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
-// backend/src/middleware/authMiddleware.ts
 export const authorizeRoles = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = (req as any).user;
-    if (!user) {
-      return res.status(403).json({ error: 'Usuario no autenticado' });
-    }
-    if (!user.role) {
-      return res.status(403).json({ error: 'Rol no encontrado en el token' });
-    }
-    if (!roles.includes(user.role)) {
-      return res.status(403).json({ 
-        error: `Acceso denegado. Se requiere uno de los siguientes roles: ${roles.join(', ')}. Tu rol actual: ${user.role}` 
-      });
+    if (!user || !roles.includes(user.rol)) { // ← ¡user.rol, no user.role!
+      return res.status(403).json({ error: 'Acceso denegado' });
     }
     next();
   };

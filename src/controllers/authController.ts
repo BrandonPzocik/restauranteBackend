@@ -1,13 +1,19 @@
 import { Request, Response } from 'express';
 import { Usuario } from '../models/Usuario';
-import { generateToken } from '../utils/auth';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const register = async (req: Request, res: Response) => {
   const { nombre, email, password, rol } = req.body;
+  
+  // Validar rol
   if (!['mozo', 'cocina', 'admin', 'cajero'].includes(rol)) {
     return res.status(400).json({ error: 'Rol inválido' });
   }
+  
   try {
     await Usuario.create(nombre, email, password, rol);
     res.status(201).json({ message: 'Usuario creado' });
@@ -22,30 +28,39 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = await Usuario.findByEmail(email);
-  if (!user) return res.status(400).json({ error: 'Credenciales inválidas' });
+  
+  if (!user) {
+    return res.status(400).json({ error: 'Credenciales inválidas' });
+  }
 
   const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return res.status(400).json({ error: 'Credenciales inválidas' });
+  if (!valid) {
+    return res.status(400).json({ error: 'Credenciales inválidas' });
+  }
 
-  const token = generateToken(user.id, user.rol);
-  res.json({ token, user: { id: user.id, nombre: user.nombre, rol: user.rol } });
+  // ✅ USAR "rol", NO "role" - ¡ESTO ES CLAVE!
+  const token = jwt.sign(
+    { id: user.id, rol: user.rol }, // ← ¡rol, no role!
+    process.env.JWT_SECRET!, 
+    { expiresIn: '1d' }
+  );
+  
+  res.json({ 
+    token, 
+    user: { 
+      id: user.id, 
+      nombre: user.nombre, 
+      rol: user.rol // ← ¡rol, no role!
+    } 
+  });
 };
 
-// backend/src/controllers/authController.ts
-export const getUser = async (req: Request, res: Response) => {
+// Endpoint para verificar sesión
+export const getUser = (req: Request, res: Response) => {
   const user = (req as any).user;
-  // El token tiene 'role', pero necesitamos obtener el nombre del usuario de la BD
-  try {
-    const dbUser = await Usuario.findById(user.id);
-    if (!dbUser) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
-    res.json({
-      id: dbUser.id,
-      nombre: dbUser.nombre,
-      rol: dbUser.rol
-    });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
+  res.json({ 
+    id: user.id, 
+    nombre: user.nombre, 
+    rol: user.rol // ← ¡rol, no role!
+  });
 };

@@ -1,4 +1,3 @@
-// src/routes/pedidoRoutes.ts
 import { Router } from 'express';
 import { 
   createPedido, 
@@ -7,20 +6,22 @@ import {
   updatePedidoStatus,
   getPedidosListos,
   getPlatosPorMesa,
-  getHistorialMozo
+  getHistorialMozo,
+  getPedidosEnCurso,
+  getPedidosCobrados
 } from '../controllers/pedidoController';
 import { authenticate } from '../middleware/authMiddleware';
 
 const router = Router();
 
-// Rutas fijas PRIMERO
 router.post('/', authenticate, createPedido);
 router.get('/', authenticate, getPedidos);
-router.get('/listos', authenticate, getPedidosListos); // ← ¡DEBE IR ANTES DE :id!
-router.get('/historial', authenticate, getHistorialMozo); // Historial del mozo
-router.get('/mesa/:mesaId', authenticate, getPlatosPorMesa); // Detalles de una mesa
+router.get('/listos', authenticate, getPedidosListos);
+router.get('/historial', authenticate, getHistorialMozo);
+router.get('/en-curso', authenticate, getPedidosEnCurso);
+router.get('/cobrados', authenticate, getPedidosCobrados);
+router.get('/mesa/:mesaId', authenticate, getPlatosPorMesa);
 
-// Rutas con parámetros al FINAL
 router.get('/:id', authenticate, getPedidoById);
 router.patch('/:id', authenticate, updatePedidoStatus);
 

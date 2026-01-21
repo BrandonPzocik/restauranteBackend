@@ -1,32 +1,34 @@
 import { Request, Response } from 'express';
 import pool from '../config/db';
 
-// Obtener todas las mesas con pedidos activos (para cerrar cuentas)
-export const getMesasActivas = async (_req: Request, res: Response) => {
+export const getTodasLasMesas = async (_req: Request, res: Response) => {
   try {
     const [rows] = await pool.execute(`
-      SELECT DISTINCT
+      SELECT 
         m.id,
         m.numero,
         m.capacidad,
-        COUNT(DISTINCT p.id) as pedidos_activos,
-        SUM(pd.cantidad * me.precio) as total_estimado
+        u.nombre as mozo_nombre,
+        p.estado,
+        p.creado_en,
+        COUNT(pd.id) as platos_count,
+        COALESCE(SUM(pd.cantidad * me.precio), 0) as total
       FROM mesas m
-      JOIN pedidos p ON m.id = p.mesa_id
-      JOIN pedido_detalles pd ON p.id = pd.pedido_id
-      JOIN menu me ON pd.plato_id = me.id
-      WHERE p.estado IN ('pendiente', 'preparando', 'listo', 'servido')
-      GROUP BY m.id, m.numero, m.capacidad
-      ORDER BY m.numero
+      LEFT JOIN pedidos p ON m.id = p.mesa_id
+      LEFT JOIN usuarios u ON p.usuario_id = u.id
+      LEFT JOIN pedido_detalles pd ON p.id = pd.pedido_id
+      LEFT JOIN menu me ON pd.plato_id = me.id
+      WHERE p.id IS NOT NULL
+      GROUP BY m.id, m.numero, m.capacidad, u.nombre, p.estado, p.creado_en
+      ORDER BY p.creado_en DESC
     `);
     res.json(rows);
   } catch (err: any) {
-    console.error('Error en getMesasActivas:', err);
-    res.status(500).json({ error: 'Error al cargar mesas activas' });
+    console.error('Error en getTodasLasMesas:', err);
+    res.status(500).json({ error: 'Error al cargar mesas' });
   }
 };
 
-// Obtener detalles completos de una mesa para cerrar cuenta
 export const getDetalleMesa = async (req: Request, res: Response) => {
   const { mesaId } = req.params;
   try {
@@ -52,4 +54,3 @@ export const getDetalleMesa = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error al cargar detalles de la mesa' });
   }
 };
-

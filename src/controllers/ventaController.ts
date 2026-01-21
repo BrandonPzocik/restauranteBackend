@@ -1,4 +1,3 @@
-// backend/src/controllers/ventaController.ts
 import { Request, Response } from 'express';
 import { Venta } from '../models/Venta';
 
@@ -7,7 +6,6 @@ export const cerrarCuenta = async (req: Request, res: Response) => {
     const { mesaId, platos, total, impuestos, formaPago } = req.body;
     const userId = (req as any).user.id;
 
-    // Validaciones básicas
     if (!mesaId || !platos || !Array.isArray(platos) || platos.length === 0) {
       return res.status(400).json({ error: 'Datos incompletos' });
     }

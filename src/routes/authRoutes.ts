@@ -6,7 +6,6 @@ const router = Router();
 
 router.post('/register', register);
 router.post('/login', login);
-// backend/src/routes/authRoutes.ts
-router.get('/me', authenticate, getUser);
+router.get('/me', authenticate, getUser); // Para verificar sesión
 
 export default router;

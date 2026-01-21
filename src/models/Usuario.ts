@@ -2,6 +2,9 @@ import pool from '../config/db';
 import bcrypt from 'bcryptjs';
 
 export class Usuario {
+  static verifyPassword(password: any, password1: any) {
+    throw new Error('Method not implemented.');
+  }
   static async create(nombre: string, email: string, password: string, rol: string) {
     const hashed = await bcrypt.hash(password, 10);
     const [result] = await pool.execute(

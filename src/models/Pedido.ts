@@ -29,7 +29,8 @@ export class Pedido {
     }
   }
 
-  static async getAllForRole(role: string, userId?: number) {
+  // ✅ CORREGIDO: Usa 'rol' en vez de 'role'
+  static async getAllForRole(rol: string, userId?: number) {
     let query = `
       SELECT p.id, p.estado, p.creado_en, m.numero as mesa_numero, u.nombre as mozo
       FROM pedidos p
@@ -38,11 +39,11 @@ export class Pedido {
       WHERE p.estado IN ('pendiente', 'preparando', 'listo', 'servido')
     `;
 
-    if (role === 'mozo') {
+    if (rol === 'mozo') {
       query += ' AND p.usuario_id = ?';
       const [rows] = await pool.execute(query, [userId]);
       return rows;
-    } else if (role === 'cocina') {
+    } else if (rol === 'cocina') {
       query += " AND p.estado IN ('pendiente', 'preparando')";
       const [rows] = await pool.execute(query);
       return rows;

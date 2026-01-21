@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Restaurante - Sistema Completo</title>
   <link rel="stylesheet" href="css/style.css" />
+  <script src="./lib/jspdf.umd.min.js"></script>
+  <!-- En index.html, reemplaza la línea de jsPDF por: -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="container" id="app">
@@ -29,47 +32,48 @@
     </section>
 
     <!-- Mozo -->
-    <section id="mozo-section">
-      <div class="header">
-        <h2>Pedidos - <span id="mozo-nombre">Mozo</span></h2>
-        <button id="logout-mozo" class="btn-secondary">Cerrar sesión</button>
-      </div>
+<section id="mozo-section">
+  <div class="header">
+    <h2>Pedidos - <span id="mozo-nombre">Mozo</span></h2>
+    <button id="logout-mozo" class="btn-secondary">Cerrar sesión</button>
+  </div>
 
-      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
-        <!-- Columna principal -->
-        <div>
-          <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <h3>✅ Pedidos listos</h3>
-              <button id="refresh-listos" class="btn-secondary">🔄</button>
-            </div>
-            <div id="pedidos-listos"></div>
-          </div>
-
-          <div class="card">
-            <h3>🛒 Nuevo pedido</h3>
-            <div class="form-group">
-              <label>Mesa</label>
-              <select id="mesa-select"></select>
-            </div>
-            <div id="menu-items"></div>
-            <div id="resumen-pedido">No hay platos</div>
-            <button id="enviar-pedido" disabled>Enviar a cocina</button>
-          </div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <!-- Columna 1: Pedidos en curso -->
+    <div>
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3>🔄 Pedidos en curso</h3>
+          <button id="refresh-cursos" class="btn-secondary">🔄</button>
         </div>
-
-        <!-- Columna lateral - Historial -->
-        <div>
-          <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <h3>📋 Mi Historial</h3>
-              <button id="refresh-historial" class="btn-secondary">🔄</button>
-            </div>
-            <div id="historial-mozo" style="max-height: 600px; overflow-y: auto;"></div>
-          </div>
-        </div>
+        <div id="pedidos-cursos"></div>
       </div>
-    </section>
+    </div>
+
+    <!-- Columna 2: Pedidos cobrados -->
+    <div>
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3>✅ Pedidos cobrados</h3>
+          <button id="refresh-cobrados" class="btn-secondary">🔄</button>
+        </div>
+        <div id="pedidos-cobrados"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nuevo pedido -->
+  <div class="card">
+    <h3>🛒 Nuevo pedido</h3>
+    <div class="form-group">
+      <label>Mesa</label>
+      <select id="mesa-select"></select>
+    </div>
+    <div id="menu-items"></div>
+    <div id="resumen-pedido">No hay platos seleccionados</div>
+    <button id="enviar-pedido" disabled>Enviar a cocina</button>
+  </div>
+</section>
 
     <!-- Cocina -->
     <section id="cocina-section">
@@ -87,102 +91,147 @@
     </section>
 
     <!-- Cajero -->
-    <section id="cajero-section">
-      <div class="header">
-        <h2>💰 Caja</h2>
-        <button id="logout-cajero" class="btn-secondary">Cerrar sesión</button>
-      </div>
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <h3>🪑 Mesas con pedidos activos</h3>
-          <button id="refresh-cajero" class="btn-secondary">🔄</button>
-        </div>
-        <div id="mesas-activas-cajero"></div>
-      </div>
-    </section>
-
-    <!-- Admin Dashboard -->
-<section id="admin-section">
+    <!-- Cajero -->
+<section id="cajero-section">
   <div class="header">
-    <h2>📊 Panel del Dueño</h2>
-    <button id="logout-admin" class="btn-secondary">Cerrar sesión</button>
+    <h2>💰 Caja</h2>
+    <button id="logout-cajero" class="btn-secondary">Cerrar sesión</button>
   </div>
-
-  <!-- Estadísticas -->
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h3>📈 Estadísticas</h3>
-      <button id="refresh-reportes" class="btn-secondary">🔄</button>
+      <h3>🪑 Todas las mesas</h3>
+      <button id="refresh-cajero" class="btn-secondary">🔄</button>
     </div>
+    <div id="mesas-activas-cajero"></div>
     
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px;">
-      <div class="stat-card">
-        <div>Hoy</div>
-        <div id="ganancias-dia" class="stat-value">$0</div>
-      </div>
-      <div class="stat-card">
-        <div>Semana</div>
-        <div id="ganancias-semana" class="stat-value">$0</div>
-      </div>
-      <div class="stat-card">
-        <div>Mes</div>
-        <div id="ganancias-mes" class="stat-value">$0</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Rendimiento por mozo -->
-  <div class="card">
-    <h3>👥 Rendimiento por mozo</h3>
-    <div id="rendimiento-mozos">Cargando...</div>
-  </div>
-
-  <!-- Platos más vendidos -->
-  <div class="card">
-    <h3>🍽️ Platos más vendidos</h3>
-    <div id="platos-vendidos">Cargando...</div>
-  </div>
-
-  <!-- Agregar plato -->
-  <div class="card">
-    <h3>➕ Agregar plato</h3>
-    <form id="menu-form">
-      <input type="text" id="plato-nombre" placeholder="Nombre" required />
-      <textarea id="plato-desc" placeholder="Descripción"></textarea>
-      <input type="number" id="plato-precio" placeholder="Precio" required />
-      <button type="submit">Agregar</button>
-    </form>
+    <!-- Botón de cierre de caja diario -->
+    <button id="cierre-caja-btn" style="margin-top: 20px; background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold;">
+      💰 Cerrar Caja del Día
+    </button>
   </div>
 </section>
 
-
-<!-- Modal de Ticket -->
-<div id="ticket-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000;">
+<!-- Modal de Cierre de Cuenta -->
+<div id="cierre-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000;">
   <div style="background:white; margin:30px auto; padding:20px; max-width:500px; max-height:80vh; overflow:auto; border-radius:10px; font-family:monospace; font-size:14px;">
-    <h3 style="text-align:center; margin-top:0;">TICKET RESTAURANTE</h3>
-    <div id="ticket-content"></div>
+    <h3 style="text-align:center; margin-top:0;">CERRAR CUENTA - Mesa <span id="modal-mesa-numero"></span></h3>
+    <div id="cierre-ticket-content"></div>
+    
+    <div style="margin-top:20px;">
+      <label><strong>Forma de pago:</strong></label><br>
+      <select id="forma-pago" style="width:100%; padding:8px; margin:8px 0; border:1px solid #ccc; border-radius:4px;">
+        <option value="efectivo">Efectivo</option>
+        <option value="tarjeta">Tarjeta</option>
+        <option value="transferencia">Transferencia</option>
+      </select>
+      
+      <div id="monto-recibido-container" style="display:none; margin-top:10px;">
+        <label>Monto recibido:</label>
+        <input type="number" id="monto-recibido" placeholder="Ingrese monto" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;" />
+        <div id="vuelto-info" style="margin-top:5px; color:#28a745; font-weight:bold;"></div>
+      </div>
+    </div>
+    
     <div style="text-align:center; margin-top:20px;">
-      <button id="print-ticket" style="background:#28a745; color:white; border:none; padding:8px 16px; border-radius:6px; margin-right:10px;">🖨️ Imprimir</button>
-      <button id="download-ticket" style="background:#007bff; color:white; border:none; padding:8px 16px; border-radius:6px; margin-right:10px;">⬇️ PDF</button>
-      <button id="confirm-cerrar" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; margin-right:10px;">✅ Cerrar cuenta</button>
-      <button id="close-ticket" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;">Cancelar</button>
+      <button id="btn-imprimir-ticket" style="background:#28a745; color:white; border:none; padding:8px 16px; border-radius:6px; margin-right:10px;">🖨️ Imprimir</button>
+      <button id="btn-cerrar-cuenta" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; margin-right:10px;">✅ Cerrar Cuenta</button>
+      <button id="btn-cancelar-cierre" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;">Cancelar</button>
+    </div>
+  </div>
+</div>
+<!-- Modal de Cierre de Caja -->
+<div id="cierre-caja-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000;">
+  <div style="background:white; margin:30px auto; padding:20px; max-width:600px; max-height:80vh; overflow:auto; border-radius:10px;">
+    <h3 style="text-align:center; margin-top:0;">Cierre de Caja - <span id="fecha-cierre"></span></h3>
+    <div id="cierre-caja-contenido"></div>
+    <div style="text-align:center; margin-top:20px;">
+      <button id="btn-descargar-cierre" style="background:#007bff; color:white; border:none; padding:8px 16px; border-radius:6px; margin-right:10px;">⬇️ Descargar PDF</button>
+      <button id="btn-cerrar-cierre" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;">Cerrar</button>
     </div>
   </div>
 </div>
 
-  <!-- Modal de observaciones -->
-  <div id="note-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
-    <div style="background:white; margin:100px auto; padding:20px; max-width:400px; border-radius:10px;">
-      <h4>Notas para este plato</h4>
-      <textarea id="note-input" placeholder="Ej: Sin huevo..." style="width:100%; height:80px; margin:10px 0;"></textarea>
-      <button id="save-note" style="background:#28a745; color:white; border:none; padding:8px 16px; border-radius:6px;">Guardar</button>
-      <button id="cancel-note" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px; margin-left:10px;">Cancelar</button>
+    <!-- Admin Dashboard -->
+    <section id="admin-section">
+      <div class="header">
+        <h2>📊 Panel del Dueño</h2>
+        <button id="logout-admin" class="btn-secondary">Cerrar sesión</button>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3>📈 Estadísticas</h3>
+          <button id="refresh-reportes" class="btn-secondary">🔄</button>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px;">
+          <div class="stat-card">
+            <div>Hoy</div>
+            <div id="ganancias-dia" class="stat-value">$0.00</div>
+          </div>
+          <div class="stat-card">
+            <div>Semana</div>
+            <div id="ganancias-semana" class="stat-value">$0.00</div>
+          </div>
+          <div class="stat-card">
+            <div>Mes</div>
+            <div id="ganancias-mes" class="stat-value">$0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rendimiento por mozo -->
+      <div class="card">
+        <h3>👥 Rendimiento por mozo</h3>
+        <div id="rendimiento-mozos">Cargando...</div>
+      </div>
+
+      <!-- Platos más vendidos -->
+      <div class="card">
+        <h3>🍽️ Platos más vendidos</h3>
+        <div id="platos-vendidos">Cargando...</div>
+      </div>
+
+      <!-- Agregar plato -->
+      <div class="card">
+        <h3>➕ Agregar plato</h3>
+        <form id="menu-form">
+          <input type="text" id="plato-nombre" placeholder="Nombre" required />
+          <textarea id="plato-desc" placeholder="Descripción"></textarea>
+          <input type="number" id="plato-precio" placeholder="Precio" required />
+          <button type="submit">Agregar</button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal de Ticket -->
+  <div id="ticket-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000;">
+    <div style="background:white; margin:30px auto; padding:20px; max-width:500px; max-height:80vh; overflow:auto; border-radius:10px; font-family:monospace; font-size:14px;">
+      <h3 style="text-align:center; margin-top:0;">TICKET RESTAURANTE</h3>
+      <div id="ticket-content"></div>
+      <div style="text-align:center; margin-top:20px;">
+        <button id="print-ticket" style="background:#28a745; color:white; border:none; padding:8px 16px; border-radius:6px; margin-right:10px;">🖨️ Imprimir</button>
+        <button id="download-ticket" style="background:#007bff; color:white; border:none; padding:8px 16px; border-radius:6px; margin-right:10px;">⬇️ PDF</button>
+        <button id="confirm-cerrar" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; margin-right:10px;">✅ Cerrar cuenta</button>
+        <button id="close-ticket" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;">Cancelar</button>
+      </div>
     </div>
   </div>
 
+  <!-- Modal de observaciones -->
+<div id="note-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
+  <div style="background:white; margin:100px auto; padding:20px; max-width:400px; border-radius:10px;">
+    <h4>Notas para este plato</h4>
+    <textarea id="note-input" placeholder="Ej: Sin huevo..." style="width:100%; height:80px; margin:10px 0;"></textarea>
+    <button id="save-note" style="background:#28a745; color:white; border:none; padding:8px 16px; border-radius:6px;">Guardar</button>
+    <button id="cancel-note" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px; margin-left:10px;">Cancelar</button>
+  </div>
+</div>
+
   <!-- Librerías -->
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <script src="lib/jspdf.umd.min.js"></script>
+  <script src="./lib/jspdf.umd.min.js"></script>
   
   <!-- Módulo principal -->
   <script type="module" src="js/main.js"></script>

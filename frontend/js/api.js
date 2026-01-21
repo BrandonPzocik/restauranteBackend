@@ -1,22 +1,7 @@
 // frontend/js/api.js
-const API_URL = 'http://localhost:3000/api'; // ← ¡Verifica este puerto!
+const API_URL = 'http://localhost:3000/api';
 
-// ✅ Usar localStorage para persistencia, pero con soporte para sesiones independientes por pestaña
 function getAuthToken() {
-  // Generar un ID único para esta pestaña si no existe
-  let tabId = sessionStorage.getItem('tabId');
-  if (!tabId) {
-    tabId = `tab_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    sessionStorage.setItem('tabId', tabId);
-  }
-  
-  // Intentar obtener token específico de esta pestaña primero
-  const tabToken = sessionStorage.getItem(`authToken_${tabId}`);
-  if (tabToken) {
-    return tabToken;
-  }
-  
-  // Si no hay token específico de pestaña, usar el global (localStorage)
   return localStorage.getItem('authToken');
 }
 
@@ -30,14 +15,7 @@ export async function apiCall(endpoint, options = {}) {
     const res = await fetch(url, { ...options, headers });
     
     if (res.status === 401) {
-      // Limpiar tanto sessionStorage como localStorage
-      const tabId = sessionStorage.getItem('tabId');
-      if (tabId) {
-        sessionStorage.removeItem(`authToken_${tabId}`);
-        sessionStorage.removeItem(`userRol_${tabId}`);
-      }
       localStorage.removeItem('authToken');
-      localStorage.removeItem('userRol');
       alert('⚠️ Sesión expirada. Inicia sesión nuevamente.');
       window.location.reload();
       return null;
@@ -52,7 +30,6 @@ export async function apiCall(endpoint, options = {}) {
   } catch (err) {
     console.error('API Error:', err);
     
-    // Mensaje específico para conexión rechazada
     if (err.message.includes('Failed to fetch')) {
       alert('❌ No se pudo conectar con el servidor. ¿Está corriendo en http://localhost:3000?');
     } else {
@@ -68,7 +45,8 @@ export const AuthAPI = {
   login: (email, password) => apiCall('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password })
-  })
+  }),
+  getUser: () => apiCall('/auth/me')
 };
 
 export const MesaAPI = {
@@ -84,6 +62,7 @@ export const MenuAPI = {
   })
 };
 
+// ✅ ¡AGREGA ESTAS FUNCIONES FALTANTES!
 export const PedidoAPI = {
   crear: (mesaId, platos) => apiCall('/pedidos', {
     method: 'POST',
@@ -97,19 +76,22 @@ export const PedidoAPI = {
     body: JSON.stringify({ estado: 'listo' })
   }),
   getDetalle: (id) => apiCall(`/pedidos/${id}`),
-  getPlatosPorMesa: (mesaId) => apiCall(`/pedidos/mesa/${mesaId}`)
+  getPlatosPorMesa: (mesaId) => apiCall(`/pedidos/mesa/${mesaId}`),
+  
+  // ✅ FUNCIONES NUEVAS PARA EL PANEL DEL MOZO
+  getPedidosEnCurso: () => apiCall('/pedidos/en-curso'),
+  getPedidosCobrados: () => apiCall('/pedidos/cobrados')
 };
-
 
 // APIs para cajero
 export const CajeroAPI = {
-  getMesasActivas: () => apiCall('/ventas/mesas-activas'),
-  getDetalleMesa: (mesaId) => apiCall(`/ventas/detalle-mesa/${mesaId}`)
+  getMesasActivas: () => apiCall('/cajero/mesas-activas'),
+  getDetalleMesa: (mesaId) => apiCall(`/cajero/mesa/${mesaId}`)
 };
 
 export const VentaAPI = {
   cerrarCuenta: (mesaId, platos, total, impuestos, formaPago) => 
-    apiCall('/ventas/cerrar-cuenta', {
+    apiCall('/ventas/cerrar', {
       method: 'POST',
       body: JSON.stringify({ mesaId, platos, total, impuestos, formaPago })
     })

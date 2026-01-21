@@ -1,14 +1,10 @@
-// src/controllers/reportesController.ts
 import { Request, Response } from 'express';
 import pool from '../config/db';
 
-// Ganancias por período
-// src/controllers/reportesController.ts
 export const getGanancias = async (req: Request, res: Response) => {
   const { periodo = 'dia' } = req.query;
   let fechaCond = '';
 
-  // Usamos "v.creado_en", no "p.creado_en"
   switch (periodo) {
     case 'semana':
       fechaCond = "DATE(v.creado_en) >= CURDATE() - INTERVAL 7 DAY";
@@ -16,7 +12,7 @@ export const getGanancias = async (req: Request, res: Response) => {
     case 'mes':
       fechaCond = "DATE(v.creado_en) >= CURDATE() - INTERVAL 1 MONTH";
       break;
-    default: // dia
+    default:
       fechaCond = "DATE(v.creado_en) = CURDATE()";
   }
 
@@ -28,11 +24,10 @@ export const getGanancias = async (req: Request, res: Response) => {
      WHERE ${fechaCond}`
   );
   
-  res.json((rows as any)[0]);
+  res.json((rows as any[])[0]);
 };
 
-// Rendimiento por mozo
-export const getRendimientoMozos = async (req: Request, res: Response) => {
+export const getRendimientoMozos = async (_req: Request, res: Response) => {
   const [rows] = await pool.execute(
     `SELECT 
       u.nombre,
@@ -46,8 +41,7 @@ export const getRendimientoMozos = async (req: Request, res: Response) => {
   res.json(rows);
 };
 
-// Platos más vendidos
-export const getPlatosVendidos = async (req: Request, res: Response) => {
+export const getPlatosVendidos = async (_req: Request, res: Response) => {
   const [rows] = await pool.execute(
     `SELECT 
       m.nombre,
@@ -60,4 +54,36 @@ export const getPlatosVendidos = async (req: Request, res: Response) => {
      LIMIT 10`
   );
   res.json(rows);
+};
+
+export const getCierreCajaDiario = async (req: Request, res: Response) => {
+  try {
+    const [rows] = await pool.execute(`
+      SELECT 
+        forma_pago,
+        COUNT(*) as cantidad_ventas,
+        COALESCE(SUM(total), 0) as total
+      FROM ventas
+      WHERE DATE(creado_en) = CURDATE()
+      GROUP BY forma_pago
+      ORDER BY FIELD(forma_pago, 'efectivo', 'tarjeta', 'transferencia')
+    `);
+    
+    const [totalRow] = await pool.execute(`
+      SELECT 
+        COUNT(*) as total_ventas,
+        COALESCE(SUM(total), 0) as total_general
+      FROM ventas
+      WHERE DATE(creado_en) = CURDATE()
+    `);
+    
+    // Ensure types are respected by explicitly asserting totalRow as any[] and accessing first row
+    res.json({
+      resumen: rows,
+      total: (totalRow as any[])[0]
+    });
+  } catch (err: any) {
+    console.error('Error en getCierreCajaDiario:', err);
+    res.status(500).json({ error: 'Error al cargar cierre de caja' });
+  }
 };
